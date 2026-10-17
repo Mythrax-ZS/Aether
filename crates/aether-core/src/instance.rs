@@ -98,7 +98,10 @@ impl Instance {
             loop {
                 match listener.accept() {
                     Ok((stream, _)) => match read_message(stream) {
-                        Ok(args) => handler(args),
+                        Ok(args) => {
+                            debug!(arguments = args.len(), "a later launch handed over its command line");
+                            handler(args);
+                        }
                         Err(e) => debug!(error = %e, "ignored a malformed hand-over"),
                     },
                     Err(e) => {
