@@ -1,0 +1,27 @@
+{
+  "name": "aether",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Aether — a fast, beautiful SSH client for Windows",
+  "type": "module",
+  "workspaces": [
+    "ui"
+  ],
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri",
+    "ui:dev": "npm --workspace ui run dev",
+    "ui:build": "npm --workspace ui run build",
+    "ui:check": "npm --workspace ui run check",
+    "ui:test": "npm --workspace ui run test",
+    "test": "cargo test --workspace && npm --workspace ui run test",
+    "lint": "cargo clippy --workspace --all-targets -- -D warnings && npm --workspace ui run check",
+    "fmt": "cargo fmt --all",
+    "portable": "pwsh -NoProfile -File scripts/package-portable.ps1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "~2.12.3",
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

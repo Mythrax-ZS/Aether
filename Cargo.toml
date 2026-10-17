@@ -1,0 +1,75 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/aether-core",
+    "crates/aether-vault",
+    "crates/aether-ssh",
+    "src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+license = "MIT"
+authors = ["Aether contributors"]
+publish = false
+
+[workspace.dependencies]
+# ── internal crates ──────────────────────────────────────────────────────────
+aether-core = { path = "crates/aether-core" }
+aether-vault = { path = "crates/aether-vault" }
+aether-ssh = { path = "crates/aether-ssh" }
+
+# ── async runtime ────────────────────────────────────────────────────────────
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util", "fs"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+futures = "0.3"
+async-trait = "0.1"
+bytes = "1"
+
+# ── SSH ──────────────────────────────────────────────────────────────────────
+# `ring` is used instead of the default `aws-lc-rs` backend: aws-lc-sys needs NASM
+# on Windows/MSVC, which would be an extra build prerequisite for contributors.
+russh = { version = "0.64", default-features = false, features = ["flate2", "ring", "rsa"] }
+russh-sftp = "3"
+
+# ── serialization & types ────────────────────────────────────────────────────
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ts-rs = { version = "12", features = ["serde-compat", "no-serde-warnings"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# ── errors & logging ─────────────────────────────────────────────────────────
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-appender = "0.2"
+
+# ── misc ─────────────────────────────────────────────────────────────────────
+parking_lot = "0.12"
+dashmap = "6"
+zeroize = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+base64 = "0.22"
+dirs = "6"
+tempfile = "3"
+
+[profile.dev]
+# Line tables are enough for readable backtraces and keep incremental builds quick.
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+# Dependencies (crypto especially) are painfully slow at opt-level 0, which makes
+# every SSH handshake in a dev build take seconds. They only compile once.
+opt-level = 2
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+opt-level = 3
+# `panic = "unwind"` (the default) is deliberate: Tokio isolates a panicking task, so one bad
+# session can't take every other live SSH connection down with it. The panic hook in
+# `src-tauri/src/logging.rs` records the backtrace either way.
