@@ -118,6 +118,22 @@ pub fn run() {
                 Err(e) => warn!(error = %e, "system tray unavailable"),
             }
 
+            // A page that never starts must not leave the program looking hung, with no window and nothing to look at.
+            let (watched, watcher) = (state.clone(), handle.clone());
+            tauri::async_runtime::spawn(window::show_if_page_is_silent(
+                window::INTERFACE_PATIENCE,
+                {
+                    let state = watched.clone();
+                    move || state.is_interface_ready()
+                },
+                move || watched.is_background_start(),
+                move || {
+                    if let Some(main) = watcher.get_webview_window("main") {
+                        window::reveal(&main);
+                    }
+                },
+            ));
+
             // Keep every window (and the tray) in sync when hosts change.
             let mut changes = state.hosts.subscribe();
             tauri::async_runtime::spawn(async move {
@@ -148,6 +164,8 @@ pub fn run() {
         // tab it showed is gone — and with it the only way to see or close the connections behind them.
         // A window's first load owns nothing yet, and a tear-off adopts its session only after loading.
         .on_page_load(|webview, payload| {
+            // Whether a page ever finished loading is the first thing to know when a window stays empty.
+            info!(window = webview.label(), event = ?payload.event(), url = %payload.url(), "page load");
             if payload.event() == PageLoadEvent::Started {
                 close_window_sessions(webview.app_handle(), webview.label());
             }

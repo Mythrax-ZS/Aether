@@ -33,8 +33,12 @@ pub fn app_info(state: St<'_>) -> AppInfo {
 /// bring it back), the first window stays hidden instead.
 #[tauri::command]
 pub fn app_ready(window: WebviewWindow, state: St<'_>) {
-    if window.label() == "main" && state.take_background_start() {
-        return;
+    if window.label() == "main" {
+        state.set_interface_ready();
+        tracing::info!("the interface is ready");
+        if state.take_background_start() {
+            return;
+        }
     }
     window::reveal(&window);
 }

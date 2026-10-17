@@ -40,6 +40,8 @@ pub struct AppState {
     applied_launch_at_login: Mutex<Option<bool>>,
     /// Started by the sign-in entry (`--background`) with a tray icon to come back to: the first window stays hidden.
     background_start: AtomicBool,
+    /// The main page has said it is ready (and asked for its window).
+    interface_ready: AtomicBool,
     pub paths: AppPaths,
     pub hosts: Arc<HostStore>,
     pub settings: Arc<SettingsStore>,
@@ -94,6 +96,7 @@ impl AppState {
             app: app.clone(),
             applied_launch_at_login: Mutex::new(None),
             background_start: AtomicBool::new(false),
+            interface_ready: AtomicBool::new(false),
             prompts: Arc::new(PromptBroker::new(app.clone())),
             hosts: Arc::new(hosts),
             settings: Arc::new(settings),
@@ -171,6 +174,20 @@ impl AppState {
     /// True once, for the first window of a background start: it is not revealed. Later windows are shown normally.
     pub fn take_background_start(&self) -> bool {
         self.background_start.swap(false, Ordering::SeqCst)
+    }
+
+    /// Whether the first window is still being kept out of sight on purpose (see [`Self::set_background_start`]).
+    pub fn is_background_start(&self) -> bool {
+        self.background_start.load(Ordering::SeqCst)
+    }
+
+    /// Remember that the main page has started and asked for its window.
+    pub fn set_interface_ready(&self) {
+        self.interface_ready.store(true, Ordering::SeqCst);
+    }
+
+    pub fn is_interface_ready(&self) -> bool {
+        self.interface_ready.load(Ordering::SeqCst)
     }
 
     pub fn resolver<'a>(&'a self, settings: &'a Settings) -> Resolver<'a> {

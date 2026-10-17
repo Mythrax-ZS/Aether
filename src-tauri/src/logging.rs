@@ -1,4 +1,5 @@
-//! Structured logging to a rolling file (and the console in debug builds).
+//! Structured logging to a rolling file (and to the console in debug builds and on Unix, where a program started from
+//! a terminal is expected to say what it is doing — a silent one looks hung).
 //!
 //! Secrets never reach the log: the engine only logs host names, key fingerprints and
 //! error kinds, and password/passphrase values are wrapped in types that print as
@@ -33,7 +34,7 @@ pub fn init(paths: &AppPaths) -> Option<WorkerGuard> {
         Ok(appender) => {
             let (writer, guard) = tracing_appender::non_blocking(appender);
             let file_layer = tracing_subscriber::fmt::layer().with_writer(writer).with_ansi(false).with_target(true);
-            if cfg!(debug_assertions) {
+            if cfg!(any(debug_assertions, unix)) {
                 let console = tracing_subscriber::fmt::layer().with_target(false).with_span_events(FmtSpan::NONE);
                 registry.with(file_layer).with(console).try_init().ok();
             } else {

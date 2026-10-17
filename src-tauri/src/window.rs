@@ -1,6 +1,7 @@
 //! Window creation and native styling.
 
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::time::Duration;
 
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 use tracing::{debug, warn};
@@ -9,11 +10,39 @@ use crate::commands::app::NewWindowRequest;
 
 static COUNTER: AtomicU32 = AtomicU32::new(1);
 
+/// How long the main page gets to ask for its window before the window is shown without being asked.
+pub const INTERFACE_PATIENCE: Duration = Duration::from_secs(10);
+
 /// Shows and focuses a window.
 pub fn reveal(window: &WebviewWindow) {
     let _ = window.show();
     let _ = window.unminimize();
     let _ = window.set_focus();
+}
+
+/// Calls `show` if the page has still not asked for its window after `patience`.
+///
+/// The window starts hidden and the page asks for it as soon as it has painted. If that never happens — the web view
+/// could not start, a script fails before the end of start-up, or the interface bundled into this build is older than
+/// the code that expects it — the window would stay hidden for good and the program would look hung. A window that is
+/// there but blank can at least be seen, closed and reported. `hidden_on_purpose` is for a start at sign-in, which is
+/// meant to show nothing.
+pub async fn show_if_page_is_silent(
+    patience: Duration,
+    asked_for_window: impl Fn() -> bool,
+    hidden_on_purpose: impl Fn() -> bool,
+    show: impl FnOnce(),
+) {
+    tokio::time::sleep(patience).await;
+    if asked_for_window() || hidden_on_purpose() {
+        return;
+    }
+    warn!(
+        seconds = patience.as_secs(),
+        "the page has not asked for its window; showing it anyway. If it stays blank, the web view may have failed to start \
+         or the interface bundled into this build may be out of date (rebuild ui/ before building the app)"
+    );
+    show();
 }
 
 /// Brings the main window forward, recreating it if it was closed.
@@ -125,4 +154,57 @@ pub fn style_native(window: &WebviewWindow) {
     }
     #[cfg(not(windows))]
     let _ = window;
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use std::time::Duration;
+
+    use super::show_if_page_is_silent;
+
+    const PATIENCE: Duration = Duration::from_millis(40);
+
+    /// Runs the watch to the end and says how many times it showed the window.
+    async fn shown(asked: &Arc<AtomicBool>, hidden_on_purpose: bool) -> usize {
+        let count = Arc::new(AtomicUsize::new(0));
+        let (asked, shown) = (asked.clone(), count.clone());
+        show_if_page_is_silent(
+            PATIENCE,
+            move || asked.load(Ordering::SeqCst),
+            move || hidden_on_purpose,
+            move || {
+                shown.fetch_add(1, Ordering::SeqCst);
+            },
+        )
+        .await;
+        count.load(Ordering::SeqCst)
+    }
+
+    #[tokio::test]
+    async fn a_page_that_never_asks_gets_its_window_shown() {
+        assert_eq!(shown(&Arc::new(AtomicBool::new(false)), false).await, 1);
+    }
+
+    #[tokio::test]
+    async fn a_page_that_has_asked_is_left_alone() {
+        assert_eq!(shown(&Arc::new(AtomicBool::new(true)), false).await, 0);
+    }
+
+    #[tokio::test]
+    async fn a_page_that_asks_while_the_watch_is_waiting_is_left_alone() {
+        let asked = Arc::new(AtomicBool::new(false));
+        let late = asked.clone();
+        tokio::spawn(async move {
+            tokio::time::sleep(PATIENCE / 4).await;
+            late.store(true, Ordering::SeqCst);
+        });
+        assert_eq!(shown(&asked, false).await, 0);
+    }
+
+    #[tokio::test]
+    async fn a_start_that_is_meant_to_stay_hidden_stays_hidden() {
+        assert_eq!(shown(&Arc::new(AtomicBool::new(false)), true).await, 0);
+    }
 }
