@@ -1,0 +1,72 @@
+[package]
+name = "aether"
+description = "Aether — a fast, beautiful SSH client for Windows"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+default-run = "aether"
+
+[lib]
+name = "aether_app"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "aether"
+path = "src/main.rs"
+
+[features]
+# Ship the webview devtools in release builds (always available in debug builds).
+devtools = ["tauri/devtools"]
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+aether-core.workspace = true
+aether-vault.workspace = true
+aether-ssh.workspace = true
+
+tauri = { version = "2.12", features = ["tray-icon", "image-png", "image-ico"] }
+tauri-plugin-dialog = "2.8"
+tauri-plugin-notification = "2.7"
+tauri-plugin-opener = "2.7"
+tauri-plugin-clipboard-manager = "2.5"
+tauri-plugin-single-instance = "2.5"
+tauri-plugin-window-state = "2.5"
+tauri-plugin-autostart = "2.7"
+tauri-plugin-process = "2.4"
+
+fontdb = "0.24"
+trash = "5.2"
+
+serde.workspace = true
+serde_json.workspace = true
+ts-rs.workspace = true
+uuid.workspace = true
+tokio.workspace = true
+futures.workspace = true
+bytes.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-appender.workspace = true
+parking_lot.workspace = true
+dashmap.workspace = true
+zeroize.workspace = true
+base64.workspace = true
+dirs.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Dwm",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Storage_FileSystem",
+] }
+
+[dev-dependencies]
+tempfile.workspace = true
