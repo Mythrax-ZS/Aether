@@ -6,9 +6,16 @@
 //!
 //! Types that cross the IPC boundary derive [`ts_rs::TS`]; running `cargo test` regenerates
 //! the TypeScript bindings in `ui/src/lib/bindings/`.
+//!
+//! `autostart` and `instance` (Unix only) are the two pieces of desktop plumbing that the Tauri
+//! plugins provide for Windows, macOS and Linux but not for the BSDs, kept here so they can be
+//! tested without a window.
 
+pub mod autostart;
 pub mod error;
 pub mod ids;
+#[cfg(unix)]
+pub mod instance;
 pub mod known_hosts;
 pub mod model;
 pub mod paths;
