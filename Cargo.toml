@@ -56,6 +56,13 @@ base64 = "0.22"
 dirs = "6"
 tempfile = "3"
 
+[patch.crates-io]
+# tao 0.37.1 does not compile on the BSDs: `window::hit_test` (the resize edges of an
+# undecorated window) is gated to Windows and Linux, yet the shared Linux/BSD backend calls
+# it. Fixed upstream in tauri-apps/tao#1356 and not released yet. This pins that commit
+# (0.37.1 plus #1352, #1353 and #1356); drop the patch once a newer tao is on crates.io.
+tao = { git = "https://github.com/tauri-apps/tao", rev = "d19f4c12a0d881260a436d9ccf3e8f349c58e2a4" }
+
 [profile.dev]
 # Line tables are enough for readable backtraces and keep incremental builds quick.
 debug = "line-tables-only"
