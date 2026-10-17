@@ -26,6 +26,8 @@ pub enum VaultError {
 pub type Result<T, E = VaultError> = std::result::Result<T, E>;
 
 impl VaultError {
+    /// Only the DPAPI file store reports file errors; elsewhere nothing is written.
+    #[cfg(windows)]
     pub(crate) fn io(path: impl Into<PathBuf>, source: io::Error) -> Self {
         Self::Io { path: path.into(), source }
     }
