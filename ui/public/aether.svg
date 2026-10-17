@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b2140"/>
+      <stop offset="0.55" stop-color="#0f1226"/>
+      <stop offset="1" stop-color="#090b17"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.46" r="0.55">
+      <stop offset="0" stop-color="#5b8cff" stop-opacity="0.42"/>
+      <stop offset="0.55" stop-color="#7a5cff" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#7a5cff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0.1" y1="0.9" x2="0.9" y2="0.1">
+      <stop offset="0" stop-color="#46e0ff"/>
+      <stop offset="0.5" stop-color="#6f8cff"/>
+      <stop offset="1" stop-color="#b98cff"/>
+    </linearGradient>
+    <linearGradient id="chev" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cfe6ff"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.09"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+    <clipPath id="tile"><rect x="64" y="64" width="896" height="896" rx="212"/></clipPath>
+  </defs>
+
+  <!-- tile -->
+  <rect x="64" y="64" width="896" height="896" rx="212" fill="url(#bg)"/>
+  <g clip-path="url(#tile)">
+    <rect x="64" y="64" width="896" height="896" fill="url(#glow)"/>
+    <!-- top sheen -->
+    <rect x="64" y="64" width="896" height="520" fill="url(#sheen)"/>
+  </g>
+  <rect x="64.5" y="64.5" width="895" height="895" rx="211.5" fill="none" stroke="#ffffff" stroke-opacity="0.10"/>
+
+  <!-- orbit ring (open at the upper right) -->
+  <g transform="rotate(-38 512 512)">
+    <circle cx="512" cy="512" r="292" fill="none" stroke="url(#ring)" stroke-width="52" stroke-linecap="round"
+            stroke-dasharray="1330 506" opacity="0.28" filter="url(#soft)"/>
+    <circle cx="512" cy="512" r="292" fill="none" stroke="url(#ring)" stroke-width="44" stroke-linecap="round"
+            stroke-dasharray="1330 506"/>
+  </g>
+  <!-- the "particle" travelling the orbit -->
+  <circle cx="755" cy="282" r="30" fill="#ffffff"/>
+  <circle cx="755" cy="282" r="64" fill="#9fb4ff" opacity="0.28" filter="url(#soft)"/>
+
+  <!-- prompt chevron + cursor -->
+  <path d="M 420 404 L 574 520 L 420 636" fill="none" stroke="url(#chev)" stroke-width="66"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="606" y="610" width="124" height="56" rx="28" fill="url(#chev)"/>
+</svg>
