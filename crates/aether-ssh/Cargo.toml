@@ -1,0 +1,43 @@
+[package]
+name = "aether-ssh"
+description = "Aether SSH engine: connections, auth, jump hosts, shells, forwarding, agent, SFTP"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[features]
+# Exposes the in-process SSH/SFTP test server (`aether_ssh::testing`) to other crates.
+testing = []
+
+[dependencies]
+aether-core.workspace = true
+aether-vault.workspace = true
+
+russh.workspace = true
+russh-sftp.workspace = true
+
+tokio = { workspace = true, features = ["process"] }
+tokio-util.workspace = true
+futures.workspace = true
+async-trait.workspace = true
+bytes.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
+ts-rs.workspace = true
+uuid.workspace = true
+
+thiserror.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+dashmap.workspace = true
+zeroize.workspace = true
+sha2.workspace = true
+base64.workspace = true
+dirs.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio = { workspace = true, features = ["test-util"] }
