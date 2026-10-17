@@ -79,7 +79,11 @@ pub fn init(app: &AppHandle) -> tauri::Result<()> {
     if let Some(icon) = app.default_window_icon() {
         builder = builder.icon(icon.clone());
     }
-    builder.build(app)?;
+    // On Linux and the BSDs the tray library loads libayatana-appindicator while it builds the icon, and panics when
+    // that isn't installed. The app is fine without a tray, so that must not take the whole start-up down with it.
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| builder.build(app)))
+        .map_err(|_| anyhow::anyhow!("the tray library could not be loaded (is libayatana-appindicator installed?)"))
+        .map_err(tauri::Error::Anyhow)??;
     Ok(())
 }
 

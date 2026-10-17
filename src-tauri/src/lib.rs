@@ -10,7 +10,9 @@ mod delegate;
 mod dto;
 mod events;
 mod logging;
+mod login_entry;
 mod prompts;
+mod single_instance;
 mod state;
 mod tray;
 mod window;
@@ -70,18 +72,19 @@ pub fn run() {
 
     // The window's size and position live with the rest of the settings, not in a folder of the framework's choosing.
     let window_state_file = paths.config_dir.join("window-state.json").to_string_lossy().into_owned();
+    let instance_folder = paths.cache_dir.clone();
     let mut pending = Some((paths, log_guard));
 
-    let app = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
-            // A second launch focuses the running instance and hands over its arguments.
-            let args: Vec<String> = args.into_iter().skip(1).collect();
-            if args.is_empty() {
-                window::show_main(app);
-            } else {
-                window::emit_to_main(app, "app:args", ArgsEvent { args });
-            }
-        }))
+    let builder = single_instance::install(tauri::Builder::default(), instance_folder, |app, args| {
+        // A second launch focuses the running instance and hands over its arguments.
+        let args: Vec<String> = args.into_iter().skip(1).collect();
+        if args.is_empty() {
+            window::show_main(app);
+        } else {
+            window::emit_to_main(app, "app:args", ArgsEvent { args });
+        }
+    });
+    let app = login_entry::install(builder)
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 // An absolute path: the plugin joins it onto its folder, and joining an absolute path gives that path.
@@ -95,10 +98,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_autostart::init(
-            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec!["--background"]),
-        ))
         .setup(move |app| {
             let (paths, guard) = pending.take().expect("setup runs once");
             let handle = app.handle().clone();
@@ -112,7 +111,9 @@ pub fn run() {
             match tray::init(&handle) {
                 // Started by the sign-in entry: sit in the tray until asked for. Without a tray there would be no way
                 // back to a hidden window, so then the window shows as usual.
-                Ok(()) if std::env::args().any(|a| a == "--background") => state.set_background_start(true),
+                Ok(()) if std::env::args().any(|a| a == login_entry::BACKGROUND_FLAG) => {
+                    state.set_background_start(true)
+                }
                 Ok(()) => {}
                 Err(e) => warn!(error = %e, "system tray unavailable"),
             }

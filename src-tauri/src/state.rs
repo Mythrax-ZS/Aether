@@ -19,6 +19,7 @@ use tracing_appender::non_blocking::WorkerGuard;
 
 use crate::connect::Resolver;
 use crate::events::AppEvents;
+use crate::login_entry::LoginEntry;
 use crate::prompts::PromptBroker;
 
 pub type Res<T> = Result<T, ErrorInfo>;
@@ -34,8 +35,8 @@ pub struct PendingPlan {
 
 pub struct AppState {
     app: AppHandle,
-    /// The last value of "launch at sign-in" that was applied to Windows, so settings edits that have nothing to do
-    /// with it (a font size slider) don't touch the registry.
+    /// The last value of "launch at sign-in" that was applied to the system, so settings edits that have nothing to do
+    /// with it (a font size slider) don't touch the registry or the autostart folder.
     applied_launch_at_login: Mutex<Option<bool>>,
     /// Started by the sign-in entry (`--background`) with a tray icon to come back to: the first window stays hidden.
     background_start: AtomicBool,
@@ -113,9 +114,8 @@ impl AppState {
         self.apply_launch_at_login(s.general.launch_at_login);
     }
 
-    /// Makes Windows start (or stop starting) Aether at sign-in, as the setting says.
+    /// Makes the system start (or stop starting) Aether at sign-in, as the setting says.
     fn apply_launch_at_login(&self, wanted: bool) {
-        use tauri_plugin_autostart::ManagerExt;
         let mut applied = self.applied_launch_at_login.lock();
         if *applied == Some(wanted) {
             return;
@@ -129,7 +129,13 @@ impl AppState {
             *applied = Some(wanted);
             return;
         }
-        let launcher = self.app.autolaunch();
+        let launcher = match LoginEntry::open(&self.app) {
+            Ok(launcher) => launcher,
+            Err(e) => {
+                tracing::warn!(error = %e, "no way to start at sign-in on this system");
+                return;
+            }
+        };
         let done = match launcher.is_enabled() {
             Ok(current) if current == wanted => true,
             Ok(_) => {
