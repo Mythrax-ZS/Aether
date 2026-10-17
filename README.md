@@ -198,6 +198,50 @@ npm run portable   # → dist\Aether-<version>-portable-x64.zip
 No Node on the machine? `pwsh scripts/setup-toolchain.ps1` downloads a private copy into `.tools\`
 (ignored by git) and prints how to put it on `PATH` for the current shell.
 
+### FreeBSD (experimental)
+
+Aether is a Windows application first. The same sources also build for FreeBSD, but that port is young: the
+whole workspace is type-checked and linted for `x86_64-unknown-freebsd`, the parts that are specific to Unix are
+tested on Linux, and the window, tray and web view have so far only been run on Windows. No packages are built
+for it; you build from source.
+
+Install the tools and libraries (the web view is WebKitGTK **4.1**, the GTK 3 / libsoup 3 build of
+`www/webkit2-gtk`; `pkg search webkit2-gtk` shows the package names):
+
+```sh
+pkg install rust node npm pkgconf gtk3 dbus xdg-utils libayatana-appindicator webkit2-gtk_41
+```
+
+The Tauri command line tool has no FreeBSD binary, so `npm run dev` and `npm run build` are not available there;
+build the interface and call `cargo` yourself. The `tauri/custom-protocol` feature is what `tauri build` normally
+adds: it makes the program carry its own copy of the interface instead of looking for the development server.
+
+```sh
+git clone https://github.com/Mythrax-ZS/Aether.git
+cd Aether
+npm install
+npm --workspace ui run build
+cargo build --release -p aether --features tauri/custom-protocol
+./target/release/aether
+```
+
+Cargo fetches `tao` from GitHub at a pinned commit (the 0.37.1 release does not compile on the BSDs; see the note
+in the workspace `Cargo.toml`), so `git` must be able to reach github.com during the first build.
+
+What is different there:
+
+- **Saved passwords and passphrases are not kept.** There is no secret store behind Aether on FreeBSD yet, so
+  "Remember…" lasts until you quit. *About Aether* in the command palette says *In-memory (not persisted)*.
+- **Launch at sign-in** writes `~/.config/autostart/aether.desktop`, which KDE, GNOME, Xfce, MATE, LXQt and the
+  like start at login.
+- **The tray icon** needs `libayatana-appindicator`. Without it Aether starts anyway, just without a tray.
+- Data lives in `~/.config/Aether` (hosts, settings, themes) and `~/.local/share/Aether` (logs, cache), or under
+  the `XDG_CONFIG_HOME` / `XDG_DATA_HOME` you have set. `AETHER_HOME=<folder>` works as everywhere.
+- Some wording is still Windows-flavoured (the "Recycle Bin" is the freedesktop trash, for one).
+- If the window opens blank, or the terminal doesn't draw, start it as
+  `WEBKIT_DISABLE_COMPOSITING_MODE=1 ./target/release/aether` — the usual workaround for WebKitGTK and some GPU
+  drivers — and, for the terminal, set *Renderer* to *Compatible* under *Settings → Terminal → Advanced*.
+
 ### Tests and checks
 
 ```powershell

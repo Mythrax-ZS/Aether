@@ -90,6 +90,10 @@ Plain data and the code that keeps it on disk.
   names are ever written. Aether writes only its own file; the user's `~/.ssh/known_hosts` is
   read-only input.
 - `paths.rs` — installed / portable / `AETHER_HOME` layouts.
+- `instance.rs` (Unix only) and `autostart.rs` — a single-instance guard (an `flock`ed file plus a Unix
+  socket that carries a later launch's command line to the first copy) and a freedesktop autostart
+  entry. The Tauri plugins for these exist for Windows, macOS and Linux only; these two cover the BSDs
+  and live here, away from the window, so they can be tested without one.
 - `error.rs` — `ErrorInfo`, `ErrorCode`, and the `UserFacing` trait every error type implements.
 
 ### `aether-vault`
@@ -99,7 +103,8 @@ A `SecretStore` trait (`put` / `get` / `delete`, synchronous) with three backend
 - **Credential Manager** for small secrets (passwords, passphrases);
 - **DPAPI files** (`CryptProtectData`, user scope, application entropy) for bulky ones (private keys,
   which exceed the Credential Manager's blob limit);
-- an in-memory store for non-Windows development and tests.
+- an in-memory store for every other system (development, tests and the FreeBSD build): secrets last
+  until the program quits and nothing is written to disk.
 
 `open_default` composes them: installed → Credential Manager + DPAPI; portable / custom → DPAPI
 files only, so a portable install leaves nothing in the machine's credential store. DPAPI files are
@@ -304,6 +309,30 @@ trusted than the core (strict CSP, no remote content, a small Tauri capability s
 or shell plugins); secrets cross the boundary once — typed into a prompt, sent to Rust — and are
 never sent back; nothing secret is ever handed to `tracing`, and a test guards the `Secret` type's
 `Debug` output.
+
+## Platforms
+
+Windows is the product. Everything platform-specific sits behind `cfg(windows)` with a plain fallback
+next to it, and the same sources build for FreeBSD. (Linux and macOS would take the same non-Windows
+paths, but nobody has built them yet.)
+
+| Concern | Windows | FreeBSD |
+|---|---|---|
+| Web view | WebView2 | WebKitGTK 4.1 (through `wry` / `tao`) |
+| Secrets | Credential Manager + DPAPI | in memory only |
+| Single instance, launch at sign-in | Tauri plugins | `aether_core::instance` / `autostart` (`src-tauri/src/single_instance.rs`, `login_entry.rs`), because the plugins have no BSD code |
+| Window polish (rounded corners) | DWM | none |
+| Local "Recycle Bin", drives | Win32 | freedesktop trash, `/` |
+
+`tao` 0.37.1 does not compile on the BSDs (its resize hit-test is gated to Windows and Linux although
+the Linux backend serves the BSDs too). The workspace `Cargo.toml` therefore pins the upstream commit that
+fixes it (`[patch.crates-io]`); drop that once a release carries it.
+
+None of this can be run on the Windows development machine, so it is checked by type-checking and
+linting the whole workspace for `x86_64-unknown-freebsd` (a cross-compiling container with the WebKit
+and GTK pkg-config lookups faked, since nothing is linked) and by running the Unix-only unit tests on
+Linux, which shares the socket and `flock` behaviour. The window, tray and web view themselves have only
+been exercised on Windows.
 
 ## Testing
 

@@ -78,6 +78,10 @@ server's host key against known keys before any credential is sent.
     machine's credential store. A sealed file is useless to other users, other machines, and anyone
     who copies it off disk. Sealed files are written under a unique temporary name, flushed to disk and
     then moved into place, so a crash leaves the old secret or the new one, never an empty file.
+  - *Any other system (the FreeBSD build):* there is no operating-system store behind Aether there
+    yet, so remembered secrets are kept in memory only. They are gone when the program quits and
+    nothing is written to disk; the *About Aether* box (command palette) says "In-memory (not
+    persisted)".
 - **In memory:** secrets are held in a zeroizing wrapper that redacts itself in `Debug` output (a test
   guards this). What you type into a password box is wiped when the reply is dropped and prints as
   "N characters" if it ever reaches a log line. The copy the OS hands back from Credential Manager or
@@ -212,9 +216,13 @@ carefully.
 - **Browser behaviour is switched off:** reload, print, view-source, find-in-page, pinch zoom, the
   default context menu, and navigation by dropping a file on the window.
 - **Single instance.** A second launch hands its arguments to the running copy rather than starting
-  another one.
+  another one. On the BSDs, where no plugin does this, the first copy holds a lock file and listens on
+  a Unix socket inside a folder only its owner can enter (mode 0700; the socket itself is 0600). A
+  later launch sends its command line, as a JSON list of strings and nothing else, over that socket;
+  a message that is oversized, slow or malformed is dropped.
 - **Launch at sign-in** is registered only by the installed app, never by a portable copy (which could
-  be moved or deleted), and starts hidden in the tray.
+  be moved or deleted), and starts hidden in the tray. On the BSDs it is a freedesktop autostart file
+  (`~/.config/autostart/aether.desktop`).
 - **Updates.** Aether does not phone home; there is no telemetry and no automatic update check.
 
 ## Reviewing the code

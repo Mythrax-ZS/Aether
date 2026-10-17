@@ -4,6 +4,24 @@ All notable changes to Aether are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **FreeBSD can build Aether.** The whole workspace now compiles for `x86_64-unknown-freebsd`; how to build
+  it is under *Build from source* in the README. It is an early port: saved passwords are kept in memory only,
+  and the window, tray and web view have not been run there yet.
+- A single-instance guard (a lock file and a Unix socket) and a freedesktop autostart entry for the BSDs, where
+  the Tauri plugins for both have no implementation.
+
+### Fixed
+
+- The build no longer stops in `tao` on the BSDs (`cannot find function hit_test`): `tao` is taken from the
+  upstream commit that fixes it until a release has it.
+- Leaving full screen from a maximized window no longer leaves the window covering the taskbar (also from that
+  `tao` update).
+- A missing tray library on Linux or the BSDs no longer ends start-up; Aether runs without a tray icon instead.
+
 ## 0.1.0 — first release
 
 The first complete version: a terminal, a host manager, SFTP, tunnels, jump hosts and secure secret
