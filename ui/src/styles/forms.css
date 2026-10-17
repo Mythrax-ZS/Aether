@@ -1,0 +1,99 @@
+/* Shared layout helpers for dialogs and settings pages. */
+
+.fsec {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fsec + .fsec {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.fsec > h3 {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.fsec > .fdesc {
+  margin-top: -8px;
+}
+.fdesc {
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+/* Settings rows divide themselves (the component's own CSS can't see its siblings). */
+.fsec > .setting-row + .setting-row {
+  border-top: 1px solid var(--border);
+}
+.fgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.fgrid.wide-left {
+  grid-template-columns: 1fr 130px;
+}
+.fgrid.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+.fgrid > .span {
+  grid-column: 1 / -1;
+}
+.flabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 550;
+  color: var(--text-dim);
+}
+.fhint {
+  margin-top: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+.frow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.frow.between {
+  justify-content: space-between;
+}
+.fstack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* A bordered list of editable rows (jump hosts, forwards, env vars). */
+.flist {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.flist > * + * {
+  border-top: 1px solid var(--border);
+}
+.flist-empty {
+  padding: 18px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+}
+
+/* Keyboard hint capsule used inside text. */
+.kbd-inline {
+  padding: 1px 6px;
+  font: 600 11px var(--font-ui);
+  color: var(--text-dim);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+}

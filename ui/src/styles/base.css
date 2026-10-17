@@ -1,0 +1,205 @@
+/* Reset + global behaviour. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  background: var(--bg-app, #090b11);
+  /* Windows' text rendering is already good; smoothing hints only matter on macOS. */
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg-app);
+  /* Only cv11 (single-storey a). Features apply to fallback fonts too, and Segoe UI Symbol's ss03 turns ✔ into a speaker. */
+  font-feature-settings: 'cv11';
+  font-optical-sizing: auto;
+  /* The app is a tool, not a document: UI chrome isn't selectable by default. */
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+input,
+textarea,
+.selectable,
+.selectable * {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* Focus: visible for keyboard users, quiet for mouse users. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: 1px;
+  border-radius: var(--r-sm);
+}
+
+/* Scrollbars. (Chromium ignores the ::-webkit-scrollbar rules below whenever `scrollbar-width`
+   or `scrollbar-color` is set, so those standard properties are deliberately not used.) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+  background-clip: content-box;
+  border: 3px solid transparent;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* No arrow buttons at the ends of scrollbars. */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* While dragging something inside the app (see dom/dnd.svelte.ts). */
+html.dnd-active,
+html.dnd-active * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+/* Utilities */
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: normal;
+}
+.dim {
+  color: var(--text-dim);
+}
+.faint {
+  color: var(--text-faint);
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reduced motion: honour the OS and the in-app setting. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) *,
+  :root:not([data-motion='full']) *::before,
+  :root:not([data-motion='full']) *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* Motion rests while nobody is looking: the window isn't in front (everything pauses), or there has been no input for a
+   while (only `.ambient` decoration pauses — spinners and progress cues keep going). Every frame of a repainting SVG or a
+   filtered layer costs real GPU time, and an SSH client is something people leave open all day. */
+:root[data-focus='out'] *,
+:root[data-focus='out'] *::before,
+:root[data-focus='out'] *::after {
+  animation-play-state: paused !important;
+}
+:root[data-idle='true'] .ambient,
+:root[data-idle='true'] .ambient * {
+  animation-play-state: paused !important;
+}
+
+/* Windows high-contrast mode: lean on system colours. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight;
+  }
+  .btn,
+  .input {
+    border: 1px solid ButtonText;
+  }
+}

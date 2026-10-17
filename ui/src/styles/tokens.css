@@ -1,0 +1,140 @@
+/* Design tokens. Dark is the default; other themes override the same variables
+   (built-ins below, custom themes are applied from JS). */
+
+:root {
+  color-scheme: dark;
+
+  /* ── typography ─────────────────────────────────────────────────────────── */
+  --font-ui: 'Inter Variable', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Cascadia Code', Consolas, monospace;
+  --fs-2xs: 10px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 14px;
+  --fs-xl: 16px;
+  --fs-2xl: 20px;
+  --fs-3xl: 30px;
+
+  /* ── spacing & shape ────────────────────────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-pill: 999px;
+  --titlebar-h: 42px;
+  --statusbar-h: 26px;
+  --row-h: 30px;
+
+  /* ── motion ─────────────────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+  --dur-fast: 110ms;
+  --dur: 190ms;
+  --dur-slow: 340ms;
+
+  /* ── layers ─────────────────────────────────────────────────────────────── */
+  --z-sidebar: 10;
+  --z-titlebar: 30;
+  --z-popover: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-tooltip: 400;
+
+  /* ── colour: Aether Dark ────────────────────────────────────────────────── */
+  --bg-app: #090b11;
+  --bg-sidebar: #0d0f16;
+  --bg-surface: #11131c;
+  --bg-raised: #171a26;
+  --bg-overlay: #1b1f2e;
+  --bg-input: #0a0c13;
+  --bg-terminal: #0c0e15;
+  --bg-hover: rgb(255 255 255 / 0.045);
+  --bg-active: rgb(255 255 255 / 0.08);
+  --border: rgb(255 255 255 / 0.07);
+  --border-strong: rgb(255 255 255 / 0.14);
+
+  --text: #e9ecf6;
+  --text-dim: #a6aec7;
+  --text-faint: #6f7793;
+
+  --accent: #5cc8ff;
+  --accent-strong: #3fb6f5;
+  --accent-2: #9d8cff;
+  --on-accent: #05121c;
+  --accent-soft: rgb(92 200 255 / 0.13);
+  --accent-ring: rgb(92 200 255 / 0.5);
+  --grad-accent: linear-gradient(135deg, #46d8ff 0%, #6f8cff 55%, #b48cff 100%);
+  --grad-accent-soft: linear-gradient(135deg, rgb(70 216 255 / 0.16), rgb(180 140 255 / 0.16));
+
+  --success: #5fd6a2;
+  --warning: #f5c067;
+  --danger: #ff6f8a;
+  --info: var(--accent);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.38), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --shadow-lg: 0 28px 80px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --glow: 0 0 0 1px var(--accent-ring), 0 0 24px rgb(92 200 255 / 0.22);
+
+  --scroll-thumb: rgb(255 255 255 / 0.13);
+  --scroll-thumb-hover: rgb(255 255 255 / 0.24);
+  --scrim: rgb(4 5 9 / 0.62);
+}
+
+/* ── colour: Aether Light ─────────────────────────────────────────────────── */
+:root[data-theme='aether-light'] {
+  color-scheme: light;
+  --bg-app: #e6e9f2;
+  --bg-sidebar: #eef0f7;
+  --bg-surface: #ffffff;
+  --bg-raised: #ffffff;
+  --bg-overlay: #ffffff;
+  --bg-input: #f2f4fa;
+  --bg-terminal: #fbfcfe;
+  --bg-hover: rgb(20 28 60 / 0.05);
+  --bg-active: rgb(20 28 60 / 0.09);
+  --border: rgb(20 28 60 / 0.1);
+  --border-strong: rgb(20 28 60 / 0.2);
+
+  --text: #151929;
+  --text-dim: #4a5270;
+  --text-faint: #8890ab;
+
+  --accent: #0a84d6;
+  --accent-strong: #0873bd;
+  --accent-2: #6d5bf0;
+  --on-accent: #ffffff;
+  --accent-soft: rgb(10 132 214 / 0.11);
+  --accent-ring: rgb(10 132 214 / 0.5);
+  --grad-accent: linear-gradient(135deg, #0aa5e8 0%, #4a6cf0 55%, #8a5cf0 100%);
+  --grad-accent-soft: linear-gradient(135deg, rgb(10 165 232 / 0.13), rgb(138 92 240 / 0.13));
+
+  --success: #14925d;
+  --warning: #b36b00;
+  --danger: #d3224f;
+
+  --shadow-sm: 0 1px 2px rgb(20 28 60 / 0.12);
+  --shadow-md: 0 8px 24px rgb(20 28 60 / 0.14), 0 0 0 1px rgb(20 28 60 / 0.04);
+  --shadow-lg: 0 28px 80px rgb(20 28 60 / 0.24), 0 0 0 1px rgb(20 28 60 / 0.05);
+  --glow: 0 0 0 1px var(--accent-ring), 0 0 22px rgb(10 132 214 / 0.2);
+
+  --scroll-thumb: rgb(20 28 60 / 0.22);
+  --scroll-thumb-hover: rgb(20 28 60 / 0.36);
+  --scrim: rgb(190 197 220 / 0.55);
+}
+
+/* Density: compact trims row heights and paddings. */
+:root[data-density='compact'] {
+  --row-h: 26px;
+  --titlebar-h: 38px;
+}
+

@@ -1,0 +1,14 @@
+/* A small symbols fallback: a 69 KB subset (arrows, technical symbols, geometric shapes, miscellaneous symbols,
+   dingbats) of Noto Sans Symbols 2, SIL Open Font License — see assets/fonts/OFL-NotoSansSymbols2.txt.
+
+   Without it, characters such as ✔ ✘ ➜ ❯ ⚠ depend on whichever font the system's fallback picks, and on some Windows
+   installs that is a font that draws speaker icons for the check marks. The terminal's font stack lists it after the
+   user's fonts (see lib/terminal/font.ts), so it only ever fills gaps. */
+@font-face {
+  font-family: 'Aether Symbols';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/aether-symbols.woff2') format('woff2');
+  unicode-range: U+2190-21FF, U+2300-23FF, U+25A0-25FF, U+2600-26FF, U+2700-27BF, U+2900-297F, U+2B00-2BFF;
+}
