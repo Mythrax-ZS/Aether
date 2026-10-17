@@ -6,6 +6,7 @@
   import { installLockdown } from '$lib/dom/lockdown';
   import { findTheme } from '$lib/themes/builtin';
   import { commandLine, isSshCommand } from '$lib/util/cmdline';
+  import { whenPainted } from '$lib/util/reveal';
   import { filedrop } from '$lib/stores/filedrop.svelte';
   import { hosts } from '$lib/stores/hosts.svelte';
   import { prompts } from '$lib/stores/prompts.svelte';
@@ -136,7 +137,7 @@
       booted = true;
       await tick();
       // Reveal the window only once there is something painted to show.
-      requestAnimationFrame(() => requestAnimationFrame(() => void api.app.ready()));
+      whenPainted(() => void api.app.ready());
     }
   }
 
