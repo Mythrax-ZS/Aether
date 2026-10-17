@@ -331,8 +331,14 @@ fixes it (`[patch.crates-io]`); drop that once a release carries it.
 None of this can be run on the Windows development machine, so it is checked by type-checking and
 linting the whole workspace for `x86_64-unknown-freebsd` (a cross-compiling container with the WebKit
 and GTK pkg-config lookups faked, since nothing is linked) and by running the Unix-only unit tests on
-Linux, which shares the socket and `flock` behaviour. The window, tray and web view themselves have only
-been exercised on Windows.
+Linux, which shares the socket and `flock` behaviour. The whole app has been run on Linux under a virtual
+display (the same WebKitGTK web view, no tray library installed) and on Windows; FreeBSD itself is the least
+tested.
+
+One difference in the web view matters: WebKitGTK produces no animation frames for a hidden window, while
+WebView2 does. The window starts hidden and the page reveals it once something is painted, so it waits for two
+frames *or* 300 ms, whichever comes first (`ui/src/lib/util/reveal.ts`); waiting for frames alone would leave the
+window hidden for good.
 
 ## Testing
 

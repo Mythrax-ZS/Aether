@@ -202,8 +202,8 @@ No Node on the machine? `pwsh scripts/setup-toolchain.ps1` downloads a private c
 
 Aether is a Windows application first. The same sources also build for FreeBSD, but that port is young: the
 whole workspace is type-checked and linted for `x86_64-unknown-freebsd`, the parts that are specific to Unix are
-tested on Linux, and the window, tray and web view have so far only been run on Windows. No packages are built
-for it; you build from source.
+tested on Linux, and the app itself has been run on Linux with the same WebKitGTK web view. FreeBSD is the least
+tested of the three. No packages are built for it; you build from source.
 
 Install the tools and libraries (the web view is WebKitGTK **4.1**, the GTK 3 / libsoup 3 build of
 `www/webkit2-gtk`; `pkg search webkit2-gtk` shows the package names):

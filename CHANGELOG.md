@@ -10,7 +10,7 @@ All notable changes to Aether are recorded here. The format follows
 
 - **FreeBSD can build Aether.** The whole workspace now compiles for `x86_64-unknown-freebsd`; how to build
   it is under *Build from source* in the README. It is an early port: saved passwords are kept in memory only,
-  and the window, tray and web view have not been run there yet.
+  and it has had little testing on FreeBSD itself.
 - A single-instance guard (a lock file and a Unix socket) and a freedesktop autostart entry for the BSDs, where
   the Tauri plugins for both have no implementation.
 
@@ -20,7 +20,10 @@ All notable changes to Aether are recorded here. The format follows
   upstream commit that fixes it until a release has it.
 - Leaving full screen from a maximized window no longer leaves the window covering the taskbar (also from that
   `tao` update).
-- A missing tray library on Linux or the BSDs no longer ends start-up; Aether runs without a tray icon instead.
+- A missing tray library on Linux or the BSDs no longer ends start-up; Aether runs without a tray icon and logs one
+  warning that names the library to install.
+- The window never appeared on Linux and the BSDs: the page showed it only after two animation frames, and
+  WebKitGTK draws none for a hidden window. It now waits for the frames for at most 300 ms.
 
 ## 0.1.0 — first release
 
