@@ -13,6 +13,9 @@ All notable changes to Aether are recorded here. The format follows
   and it has had little testing on FreeBSD itself.
 - A single-instance guard (a lock file and a Unix socket) and a freedesktop autostart entry for the BSDs, where
   the Tauri plugins for both have no implementation.
+- On Linux and the BSDs the log lines also go to the terminal (as they already did in debug builds), and the log
+  records when each page starts and finishes loading and when the interface says it is ready — so a program that
+  seems hung says where it is.
 
 ### Fixed
 
@@ -24,6 +27,10 @@ All notable changes to Aether are recorded here. The format follows
   warning that names the library to install.
 - The window never appeared on Linux and the BSDs: the page showed it only after two animation frames, and
   WebKitGTK draws none for a hidden window. It now waits for the frames for at most 300 ms.
+- A page that never starts no longer leaves the program looking hung with no window: if the interface has not asked
+  for its window after 10 s, the window is shown anyway and the log says why.
+- `cargo build` now notices a rebuilt `ui/dist`. The interface is embedded while the program compiles, and cargo
+  could not see that, so the program kept the interface it was last compiled with however often `ui/` was rebuilt.
 
 ## 0.1.0 — first release
 

@@ -238,6 +238,12 @@ What is different there:
 - Data lives in `~/.config/Aether` (hosts, settings, themes) and `~/.local/share/Aether` (logs, cache), or under
   the `XDG_CONFIG_HOME` / `XDG_DATA_HOME` you have set. `AETHER_HOME=<folder>` works as everywhere.
 - Some wording is still Windows-flavoured (the "Recycle Bin" is the freedesktop trash, for one).
+- **It says what it is doing.** Started from a terminal, Aether prints the same lines it writes to its log
+  (`~/.local/share/Aether/logs`); `AETHER_LOG=debug` makes them chattier.
+- **Disk space.** Building Aether itself takes about 2 GB for a release build (1.7 GB measured on Linux; a debug
+  build is about 3 GB, 4 GB with the tests built too), and `cargo clean` gives it back. If something wants tens of
+  gigabytes, it is most likely a package compiled from the ports tree — WebKitGTK and Rust are enormous from source —
+  so install those with `pkg install` as above.
 - If the window opens blank, or the terminal doesn't draw, start it as
   `WEBKIT_DISABLE_COMPOSITING_MODE=1 ./target/release/aether` — the usual workaround for WebKitGTK and some GPU
   drivers — and, for the terminal, set *Renderer* to *Compatible* under *Settings → Terminal → Advanced*.
@@ -293,6 +299,13 @@ The architecture, data flow and the reasons behind the main decisions are in
 - **X11 programs don't open.** Aether forwards the connection; an X server must be running on your PC
   (VcXsrv, X410, Xming) and accept TCP connections. Set its address under *Settings → SSH*.
 - **Aether doesn't start (portable build).** Install the WebView2 runtime.
+- **Aether starts but no window appears (Linux, FreeBSD).** The window is shown as soon as the interface says it is
+  ready; if that hasn't happened after 10 seconds, Aether shows it anyway and logs *the page has not asked for its
+  window*. The usual cause is an interface that is older than the program, because it is embedded while `cargo`
+  compiles: run `npm --workspace ui run build` first and `cargo build` second. Start Aether from a terminal to see what it
+  logs — `page load … Started` followed by `Finished` means the web view did load the page. If it hangs for real,
+  `lldb --batch -p $(pgrep -x aether) -o 'bt all'` (in the FreeBSD base system; `gdb` does the same) shows where every
+  thread is waiting — build with `--config profile.release.strip=false` to get function names.
 
 ## Status
 
