@@ -1,0 +1,6 @@
+[env]
+# ts-rs writes generated TypeScript bindings here (relative to the workspace root)
+# whenever `cargo test` runs. They are committed so the UI builds without Rust.
+TS_RS_EXPORT_DIR = { value = "ui/src/lib/bindings", relative = true }
+# Timestamps and byte counts cross IPC as JSON numbers (always < 2^53), never BigInt.
+TS_RS_LARGE_INT = "number"

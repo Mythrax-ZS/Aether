@@ -1,0 +1,3 @@
+# Wider lines and compact one-line literals read better for this codebase than the 100-column default.
+max_width = 120
+use_small_heuristics = "Max"
